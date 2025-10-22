@@ -1,8 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Elijah Gallery is a modern, production-ready image showcase built with Next.js App Router, Tailwind CSS, and Cloudinary. It includes a public gallery and a protected admin upload panel.
 
 ## Getting Started
 
-First, run the development server:
+First, create `.env.local` in the project root with:
+
+```
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
@@ -14,9 +25,12 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the gallery.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Public gallery: `/`
+- Admin upload: `/admin` (Basic Auth using `ADMIN_USERNAME`/`ADMIN_PASSWORD`)
+
+Uploads are stored in the Cloudinary folder `elijah-gallery`. The gallery lists the latest 100 images.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

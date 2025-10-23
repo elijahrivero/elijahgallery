@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAlbumImages, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { albumId: string } }
 ) {
   try {
@@ -13,7 +13,8 @@ export async function GET(
       });
     }
 
-    const images = await getAlbumImages(params.albumId);
+    const albumId: string = params.albumId;
+    const images = await getAlbumImages(albumId);
     return NextResponse.json({ images });
   } catch (error: any) {
     console.error("Album images API error:", error);

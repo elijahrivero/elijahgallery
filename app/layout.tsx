@@ -105,7 +105,7 @@ export default function RootLayout({
             </div>
           </header>
           <main className="flex-1">
-            {children}
+        {children}
           </main>
           <footer className="border-t border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-6 py-8">

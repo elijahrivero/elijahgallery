@@ -60,7 +60,7 @@ export const getAlbums = async (): Promise<Album[]> => {
       
       albums.push({
         id: folder.name,
-        name: folder.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        name: folder.name.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
         coverImage,
         imageCount: countSearch.total_count || 0,
         createdAt: folder.created_at,

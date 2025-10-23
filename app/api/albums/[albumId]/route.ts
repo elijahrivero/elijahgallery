@@ -3,7 +3,7 @@ import { getAlbumImages, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 export async function GET(
   request: Request,
-  { params }: { params: { albumId: string } }
+  { params }: { params: Promise<{ albumId: string }> }
 ) {
   try {
     if (!isCloudinaryConfigured()) {
@@ -13,7 +13,7 @@ export async function GET(
       });
     }
 
-    const albumId: string = params.albumId;
+    const { albumId } = await params;
     const images = await getAlbumImages(albumId);
     return NextResponse.json({ images });
   } catch (error: any) {

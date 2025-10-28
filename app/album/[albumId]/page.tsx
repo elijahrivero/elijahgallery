@@ -273,21 +273,27 @@ export default function AlbumPage({ params }: AlbumPageProps) {
               </motion.button>
             )}
 
-            {/* Image Container */}
+            {/* Image Container (Polaroid style) */}
             <motion.div
               key={selectedImageIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="relative max-w-7xl max-h-[90vh] mx-auto px-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={images[selectedImageIndex].url}
-                alt={images[selectedImageIndex].id}
-                className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+              <div className="relative mx-auto bg-white rounded-[14px] shadow-2xl border border-slate-200 overflow-hidden"
                 style={{ maxWidth: '90vw' }}
-              />
+              >
+                <div className="p-3 pb-8">
+                  <img
+                    src={images[selectedImageIndex].url}
+                    alt={images[selectedImageIndex].id}
+                    className="max-w-full max-h-[80vh] w-auto h-auto object-contain"
+                  />
+                </div>
+                <div className="absolute inset-0 rounded-[14px] pointer-events-none" style={{ boxShadow: '0 20px 50px rgba(0,0,0,0.35)' }}></div>
+              </div>
             </motion.div>
 
             {/* Download & Delete Buttons */}

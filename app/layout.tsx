@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ThemeProvider } from "@/lib/theme-context";
+import CubeCursor from "@/components/cube-cursor";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
@@ -84,12 +85,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+      <body className="antialiased min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 md:[&_*]:cursor-none">
         <ThemeProvider>
           <div className="min-h-screen flex flex-col">
+            <CubeCursor />
             <header className="sticky top-0 z-40 w-full border-b border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm">
               <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
-                <Link href="/" className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 dark:from-slate-100 dark:via-blue-100 dark:to-purple-100 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+                <Link id="site-logo" href="/" className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 dark:from-slate-100 dark:via-blue-100 dark:to-purple-100 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
                   Elijah Gallery
                 </Link>
                 <nav className="flex items-center gap-6 text-sm font-medium">

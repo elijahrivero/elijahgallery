@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import IntroCamera from "@/components/intro-camera";
+import GalleryCube from "@/components/gallery-cube";
 import { Camera, Instagram, Facebook, Linkedin, FolderOpen, Image as ImageIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -16,6 +18,7 @@ type Album = {
 export default function Home() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
     loadAlbums();
@@ -35,11 +38,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {!introDone && (
+        <IntroCamera onDone={() => setIntroDone(true)} />
+      )}
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-blue-950/30 dark:to-purple-950/30">
         <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-100/[0.03] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
         <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32">
-          <div className="text-center">
+          <div className="text-center relative">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -81,6 +87,13 @@ export default function Home() {
                 </a>
               </div>
             </motion.div>
+
+            {/* Floating Gallery Cube */}
+            {!isLoading && albums.length > 0 && (
+              <div className="mt-10 flex justify-center">
+                <GalleryCube albums={albums.map(a => ({ id: a.id, name: a.name, coverImage: a.coverImage }))} />
+              </div>
+            )}
           </div>
         </div>
       </section>

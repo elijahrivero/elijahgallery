@@ -26,20 +26,6 @@ export default function GalleryCube({ albums, size = 220 }: GalleryCubeProps) {
   }, [albums]);
 
   const half = size / 2;
-  const focusRotation = useMemo(() => {
-    if (!zooming) return { rotateX: -10, rotateY: 0, scale: 1 };
-    const i = zooming.index;
-    const mapping: Record<number, { rx: number; ry: number }> = {
-      0: { rx: 0, ry: 0 },
-      1: { rx: 0, ry: -90 },
-      2: { rx: 0, ry: -180 },
-      3: { rx: 0, ry: 90 },
-      4: { rx: -90, ry: 0 },
-      5: { rx: 90, ry: 0 },
-    };
-    const { rx, ry } = mapping[i] ?? { rx: 0, ry: 0 };
-    return { rotateX: rx, rotateY: ry, scale: 1.6 };
-  }, [zooming]);
 
   return (
     <div className="relative perspective-[1200px] select-none">
@@ -125,7 +111,22 @@ export default function GalleryCube({ albums, size = 220 }: GalleryCubeProps) {
             <motion.div
               className="relative w-full h-full transform-style-3d"
               initial={{ scale: 1, rotateX: -10, rotateY: 0 }}
-              animate={focusRotation}
+              animate={
+                zooming
+                  ? (() => {
+                      const mapping: Record<number, { rx: number; ry: number }> = {
+                        0: { rx: 0, ry: 0 },
+                        1: { rx: 0, ry: -90 },
+                        2: { rx: 0, ry: -180 },
+                        3: { rx: 0, ry: 90 },
+                        4: { rx: -90, ry: 0 },
+                        5: { rx: 90, ry: 0 },
+                      };
+                      const { rx, ry } = mapping[zooming.index] ?? { rx: 0, ry: 0 };
+                      return { rotateX: rx, rotateY: ry, scale: 1.6 };
+                    })()
+                  : { rotateX: -10, rotateY: 0, scale: 1 }
+              }
               transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
             >
               {[

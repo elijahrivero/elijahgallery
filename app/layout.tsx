@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ThemeProvider } from "@/lib/theme-context";
 import CubeCursor from "@/components/cube-cursor";
+import { SoundToggle } from "@/components/sound-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
@@ -107,6 +108,7 @@ export default function RootLayout({
                   <Link href="/admin" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                     Admin
                   </Link>
+                  <SoundToggle />
                   <ThemeToggle />
                 </nav>
               </div>

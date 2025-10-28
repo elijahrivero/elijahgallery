@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { isSoundEnabled } from "@/components/sound-toggle";
 
 // Simple SVG camera icon for the animation
 function CameraIcon() {
@@ -87,6 +88,17 @@ export default function IntroCamera({ onDone }: IntroCameraProps) {
     const hasSeen = sessionStorage.getItem("introCameraSeen");
     if (hasSeen) return; // skip if already seen
 
+    // Respect reduced motion
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) {
+      // Skip animation: directly reveal content and scroll gently to gallery
+      setShow(false);
+      const gallery = document.getElementById("gallery");
+      if (gallery) gallery.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (onDone) onDone();
+      return;
+    }
+
     setShow(true);
     sessionStorage.setItem("introCameraSeen", "1");
 
@@ -125,8 +137,8 @@ export default function IntroCamera({ onDone }: IntroCameraProps) {
 
     const anim = camera.animate(pathKeyframes, timing);
     anim.onfinish = () => {
-      // Flash
-      playShutter();
+      // Flash & optional sound
+      if (isSoundEnabled()) playShutter();
       setFlash(true);
       setTimeout(() => setFlash(false), 180);
 

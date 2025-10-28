@@ -1,6 +1,5 @@
 "use client";
 import { motion } from "framer-motion";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Mail, Phone, MapPin, Instagram, Facebook, Linkedin, Send } from "lucide-react";
 import { useState } from "react";
 
@@ -54,18 +53,10 @@ export default function Contact() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8"
+              className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto"
             >
               Ready to capture your special moments? I'd love to hear about your project and discuss how we can work together.
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex justify-center"
-            >
-              <ThemeToggle />
-            </motion.div>
           </div>
         </div>
       </section>

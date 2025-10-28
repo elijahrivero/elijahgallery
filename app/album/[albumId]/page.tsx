@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState, use } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { downloadImage } from "@/lib/download";
 
 type AlbumPageProps = {
@@ -21,6 +22,8 @@ export default function AlbumPage({ params }: AlbumPageProps) {
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
@@ -94,9 +97,64 @@ export default function AlbumPage({ params }: AlbumPageProps) {
     }
   }, []);
 
+  const openLightbox = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setSelectedImageIndex(null);
+    setIsLightboxOpen(false);
+  };
+
+  const navigateLightbox = (direction: 'prev' | 'next') => {
+    if (selectedImageIndex === null) return;
+
+    if (direction === 'prev') {
+      setSelectedImageIndex(selectedImageIndex > 0 ? selectedImageIndex - 1 : images.length - 1);
+    } else {
+      setSelectedImageIndex(selectedImageIndex < images.length - 1 ? selectedImageIndex + 1 : 0);
+    }
+  };
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isLightboxOpen) return;
+
+      switch (e.key) {
+        case 'Escape':
+          closeLightbox();
+          break;
+        case 'ArrowLeft':
+          navigateLightbox('prev');
+          break;
+        case 'ArrowRight':
+          navigateLightbox('next');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, selectedImageIndex, images.length]);
+
+  // Prevent body scroll when lightbox is open
+  useEffect(() => {
+    if (isLightboxOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isLightboxOpen]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen w-full flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
           <div className="relative mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -106,17 +164,17 @@ export default function AlbumPage({ params }: AlbumPageProps) {
               <span className="text-xs">✨</span>
             </div>
           </div>
-          
-          <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-300 mb-4">Loading Album</h2>
-          <p className="text-slate-500 dark:text-slate-400 mb-8">Preparing your album view...</p>
-          
+
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Loading Album</h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-8">Preparing your album view...</p>
+
           {/* Progress Bar */}
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 mb-4 overflow-hidden">
             <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full animate-pulse relative">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-center gap-2 text-sm text-slate-600 dark:text-slate-400">
             <div className="flex gap-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -131,7 +189,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen w-full">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-6 py-4 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 backdrop-blur-sm animate-in slide-in-from-right-5 duration-300">
@@ -141,6 +199,160 @@ export default function AlbumPage({ params }: AlbumPageProps) {
           </div>
         </div>
       )}
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {isLightboxOpen && selectedImageIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+            onClick={closeLightbox}
+          >
+            {/* Close Button */}
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 z-50 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 backdrop-blur-md"
+              aria-label="Close lightbox"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </motion.button>
+
+            {/* Image Counter */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-white/10 text-white rounded-full backdrop-blur-md text-sm font-medium"
+            >
+              {selectedImageIndex + 1} / {images.length}
+            </motion.div>
+
+            {/* Previous Button */}
+            {images.length > 1 && (
+              <motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateLightbox('prev');
+                }}
+                className="absolute left-4 z-50 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 backdrop-blur-md"
+                aria-label="Previous image"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </motion.button>
+            )}
+
+            {/* Next Button */}
+            {images.length > 1 && (
+              <motion.button
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateLightbox('next');
+                }}
+                className="absolute right-4 z-50 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 backdrop-blur-md"
+                aria-label="Next image"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </motion.button>
+            )}
+
+            {/* Image Container */}
+            <motion.div
+              key={selectedImageIndex}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="relative max-w-7xl max-h-[90vh] mx-auto px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={images[selectedImageIndex].url}
+                alt={images[selectedImageIndex].id}
+                className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                style={{ maxWidth: '90vw' }}
+              />
+            </motion.div>
+
+            {/* Download & Delete Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-3"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload(images[selectedImageIndex].url, images[selectedImageIndex].id);
+                }}
+                disabled={isDownloading === images[selectedImageIndex].id}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500/90 hover:bg-blue-600 text-white rounded-full transition-all duration-200 backdrop-blur-md disabled:opacity-50"
+              >
+                {isDownloading === images[selectedImageIndex].id ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Downloading...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Download</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteImage(images[selectedImageIndex].id);
+                  closeLightbox();
+                }}
+                disabled={isDeleting === images[selectedImageIndex].id}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/90 hover:bg-red-600 text-white rounded-full transition-all duration-200 backdrop-blur-md disabled:opacity-50"
+              >
+                {isDeleting === images[selectedImageIndex].id ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Delete</span>
+                  </>
+                )}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -178,10 +390,11 @@ export default function AlbumPage({ params }: AlbumPageProps) {
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 [column-fill:_balance]">
             <div className="contents">
               {images.map((img, index) => (
-                <div 
-                  key={img.id} 
+                <div
+                  key={img.id}
                   className="mb-6 break-inside-avoid relative group cursor-pointer"
                   style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => openLightbox(index)}
                 >
                   <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                     <img
@@ -191,12 +404,24 @@ export default function AlbumPage({ params }: AlbumPageProps) {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                    
+
+                    {/* View Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </div>
+
                     {/* Action Buttons */}
                     <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                       {/* Download Button */}
                       <button
-                        onClick={() => handleDownload(img.url, img.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(img.url, img.id);
+                        }}
                         disabled={isDownloading === img.id}
                         className="bg-blue-500/90 hover:bg-blue-600 text-white rounded-full p-2 disabled:opacity-50 backdrop-blur-sm"
                         title="Download image"
@@ -215,7 +440,10 @@ export default function AlbumPage({ params }: AlbumPageProps) {
                       
                       {/* Delete Button */}
                       <button
-                        onClick={() => deleteImage(img.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteImage(img.id);
+                        }}
                         disabled={isDeleting === img.id}
                         className="bg-red-500/90 hover:bg-red-600 text-white rounded-full p-2 disabled:opacity-50 backdrop-blur-sm"
                         title="Delete image"

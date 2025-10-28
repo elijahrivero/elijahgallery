@@ -1,6 +1,5 @@
 "use client";
 import { motion } from "framer-motion";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Camera, Award, MapPin, Mail } from "lucide-react";
 
 export default function About() {
@@ -30,12 +29,9 @@ export default function About() {
               <p className="text-xl text-slate-600 dark:text-slate-300 mb-6">
                 Professional Photographer
               </p>
-              <div className="flex justify-center items-center gap-4">
-                <ThemeToggle />
-                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                  <MapPin className="w-4 h-4" />
-                  <span>New York, NY</span>
-                </div>
+              <div className="flex justify-center items-center gap-2 text-slate-600 dark:text-slate-400">
+                <MapPin className="w-4 h-4" />
+                <span>New York, NY</span>
               </div>
             </motion.div>
           </div>

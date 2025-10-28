@@ -31,6 +31,7 @@ export default function IntroCamera({ onDone }: IntroCameraProps) {
       if (!AudioContextCtor) return;
       if (!audioCtxRef.current) audioCtxRef.current = new AudioContextCtor();
       const ctx = audioCtxRef.current;
+      if (!ctx) return;
 
       const now = ctx.currentTime;
 

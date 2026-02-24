@@ -127,12 +127,12 @@ export default function About() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
             className="relative"
-            style={{ aspectRatio: "3/4", maxHeight: 680 }}
           >
             <img
-              src="/elijah.jpg"
+              src="/elijahpic2.jpg"
               alt="Elijah Rivero"
-              className="w-full h-full object-cover"
+              className="w-full h-auto block"
+              style={{ imageRendering: "auto" }}
             />
             {/* Subtle gold border accent */}
             <div

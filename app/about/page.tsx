@@ -130,7 +130,7 @@ export default function About() {
             style={{ aspectRatio: "3/4", maxHeight: 680 }}
           >
             <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1067&fit=crop&crop=face"
+              src="/elijah.jpg"
               alt="Elijah Rivero"
               className="w-full h-full object-cover"
             />

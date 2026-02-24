@@ -1,8 +1,6 @@
 "use client";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import IntroCamera from "@/components/intro-camera";
-import { Camera, Instagram, Facebook, Linkedin, FolderOpen, Image as ImageIcon } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 
 type Album = {
@@ -14,192 +12,336 @@ type Album = {
   createdAt: string;
 };
 
+/* ── Stagger helpers ──────────────────────────────────────── */
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+};
+
 export default function Home() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
-    loadAlbums();
+    fetch("/api/albums", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setAlbums(d.albums || []))
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const loadAlbums = async () => {
-    try {
-      const res = await fetch("/api/albums", { cache: "no-store" });
-      const data = await res.json();
-      setAlbums(data.albums || []);
-    } catch (error) {
-      console.error("Error loading albums:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen">
-      {!introDone && (
-        <IntroCamera onDone={() => setIntroDone(true)} />
-      )}
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-blue-950/30 dark:to-purple-950/30">
-        <div className="absolute inset-0 bg-grid-slate-900/[0.04] dark:bg-grid-slate-100/[0.03] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
-        <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32">
-          <div className="text-center relative">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 dark:from-slate-100 dark:via-blue-100 dark:to-purple-100 bg-clip-text text-transparent mb-6"
-            >
-              Elijah Gallery
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed"
-            >
-              Capturing moments, creating memories. Explore our curated collections of photographic art.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-              <Link
-                href="#gallery"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <Camera className="w-5 h-5" />
-                Browse Albums
-              </Link>
-              <div className="flex gap-4">
-                <a href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <Instagram className="w-6 h-6" />
-                </a>
-                <a href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <Facebook className="w-6 h-6" />
-                </a>
-                <a href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <Linkedin className="w-6 h-6" />
-                </a>
-              </div>
-            </motion.div>
+    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <section
+        className="relative flex flex-col items-center justify-center"
+        style={{ height: "100svh", minHeight: 600 }}
+      >
+        {/* Radial gold glow */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201,169,110,0.07), transparent)",
+          }}
+        />
 
+        <div className="relative z-10 text-center px-6 select-none">
+          {/* ELIJAH — clip-path reveal */}
+          <div className="overflow-hidden">
+            <motion.h1
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="leading-none tracking-[0.12em] uppercase"
+              style={{
+                fontFamily: "var(--font-playfair), Georgia, serif",
+                fontSize: "clamp(4rem, 12vw, 10rem)",
+                fontWeight: 700,
+                color: "var(--text)",
+              }}
+            >
+              Elijah
+            </motion.h1>
           </div>
+
+          {/* GALLERY — staggered 0.15s after */}
+          <div className="overflow-hidden">
+            <motion.h1
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{
+                duration: 0.9,
+                delay: 0.15,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+              className="leading-none tracking-[0.28em] uppercase -mt-3"
+              style={{
+                fontFamily: "var(--font-playfair), Georgia, serif",
+                fontSize: "clamp(1.5rem, 5vw, 4rem)",
+                fontWeight: 400,
+                fontStyle: "italic",
+                color: "var(--accent)",
+              }}
+            >
+              Gallery
+            </motion.h1>
+          </div>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="mt-8 tracking-[0.25em] uppercase text-xs sm:text-sm opacity-50"
+            style={{ color: "var(--text)", letterSpacing: "0.25em" }}
+          >
+            Capturing the world through light
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="mt-12"
+          >
+            <Link
+              href="#gallery"
+              className="inline-flex items-center gap-3 px-8 py-3 text-sm tracking-widest uppercase transition-all duration-300"
+              style={{
+                border: "1px solid var(--accent)",
+                color: "var(--accent)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "var(--accent)";
+                (e.currentTarget as HTMLElement).style.color = "#080808";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "transparent";
+                (e.currentTarget as HTMLElement).style.color = "var(--accent)";
+              }}
+            >
+              View Work
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </Link>
+          </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <div
+            className="animate-scroll-pulse"
+            style={{
+              width: 1,
+              height: 48,
+              background:
+                "linear-gradient(to bottom, var(--accent), transparent)",
+            }}
+          />
+        </motion.div>
       </section>
 
-      {/* Gallery Albums Section */}
-      <section id="gallery" className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-12">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4"
+      {/* ── Albums Section ────────────────────────────────────── */}
+      <section id="gallery" className="py-24 px-6">
+        <div className="mx-auto max-w-7xl">
+          {/* Section heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="mb-16"
+          >
+            <p
+              className="text-xs tracking-[0.3em] uppercase mb-4 opacity-50"
+              style={{ color: "var(--accent)" }}
             >
-              Photo Albums
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto"
-            >
-              Browse through our carefully curated photo collections, each telling its own unique story
-            </motion.p>
-          </div>
+              Portfolio
+            </p>
+            <div className="flex items-end gap-6">
+              <h2
+                className="text-4xl sm:text-5xl leading-tight"
+                style={{
+                  fontFamily: "var(--font-playfair), Georgia, serif",
+                  color: "var(--text)",
+                }}
+              >
+                Selected Works
+              </h2>
+              {/* Gold rule */}
+              <div
+                className="flex-1 mb-3"
+                style={{ height: 1, background: "var(--accent)", opacity: 0.3 }}
+              />
+            </div>
+          </motion.div>
 
-          {/* Loading State */}
+          {/* Loading skeletons */}
           {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-slate-200 dark:bg-slate-700 rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[4/3] bg-slate-300 dark:bg-slate-600"></div>
-                  <div className="p-6">
-                    <div className="h-6 bg-slate-300 dark:bg-slate-600 rounded mb-3 w-3/4"></div>
-                    <div className="h-4 bg-slate-300 dark:bg-slate-600 rounded w-1/2"></div>
-                  </div>
-                </div>
+                <div
+                  key={i}
+                  className="animate-pulse"
+                  style={{
+                    background: "var(--surface)",
+                    aspectRatio: i === 1 ? "16/9" : "4/3",
+                    gridColumn: i === 1 ? "span 2" : "span 1",
+                  }}
+                />
               ))}
             </div>
           )}
 
-          {/* Albums Grid */}
+          {/* Albums grid */}
           {!isLoading && albums.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px"
+              style={{ background: "var(--border)" }}
+            >
               {albums.map((album, index) => (
                 <motion.div
                   key={album.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  variants={item}
+                  whileHover={{ scale: 1.015 }}
+                  transition={{ type: "spring", damping: 20 }}
+                  className={index === 0 ? "md:col-span-2" : ""}
+                  style={{ background: "var(--bg)" }}
                 >
-                  <Link href={`/album/${album.id}`}>
-                    <div className="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
-                      <div className="relative aspect-[4/3] bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 overflow-hidden">
-                        {album.coverImage ? (
-                          <>
-                            <img
-                              src={album.coverImage}
-                              alt={album.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  <Link href={`/album/${album.id}`} className="block group">
+                    {/* Image area */}
+                    <div
+                      className="relative overflow-hidden"
+                      style={{ aspectRatio: index === 0 ? "16/9" : "4/3" }}
+                    >
+                      {album.coverImage ? (
+                        <img
+                          src={album.coverImage}
+                          alt={album.name}
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:brightness-75 group-hover:scale-[1.03]"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{ background: "var(--surface)" }}
+                        >
+                          <svg
+                            className="w-16 h-16 opacity-20"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </>
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <FolderOpen className="w-20 h-20 text-slate-400 dark:text-slate-500" />
-                          </div>
-                        )}
-
-                        {/* Image Count Badge */}
-                        <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                          <ImageIcon className="w-4 h-4" />
-                          {album.imageCount}
+                          </svg>
                         </div>
+                      )}
+
+                      {/* Image count badge */}
+                      <div
+                        className="absolute top-4 right-4 text-xs tracking-widest font-mono px-2 py-1"
+                        style={{
+                          background: "rgba(0,0,0,0.6)",
+                          color: "rgba(255,255,255,0.7)",
+                          backdropFilter: "blur(4px)",
+                        }}
+                      >
+                        {album.imageCount}
                       </div>
 
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {/* Album name overlay — slides up on hover */}
+                      <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out p-6">
+                        <p
+                          className="text-sm tracking-[0.2em] uppercase"
+                          style={{ color: "var(--accent)" }}
+                        >
                           {album.name}
-                        </h3>
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            {album.imageCount} {album.imageCount === 1 ? 'photo' : 'photos'}
-                          </p>
-                          <div className="text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform duration-200">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
-                        </div>
+                        </p>
                       </div>
+                    </div>
+
+                    {/* Card footer */}
+                    <div
+                      className="px-5 py-4 flex items-center justify-between"
+                      style={{ borderTop: "1px solid var(--border)" }}
+                    >
+                      <span
+                        className="text-sm tracking-wide"
+                        style={{ color: "var(--text)" }}
+                      >
+                        {album.name}
+                      </span>
+                      <span
+                        className="text-xs opacity-50"
+                        style={{ color: "var(--text)" }}
+                      >
+                        {album.imageCount}{" "}
+                        {album.imageCount === 1 ? "photo" : "photos"}
+                      </span>
                     </div>
                   </Link>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
 
-          {/* Empty State */}
+          {/* Empty state */}
           {!isLoading && albums.length === 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-20"
+              className="text-center py-32"
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FolderOpen className="w-12 h-12 text-slate-400 dark:text-slate-500" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-                No Albums Yet
-              </h3>
-              <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                The gallery is empty. Albums will appear here once they're created and filled with photos.
+              <p
+                className="text-5xl mb-6 opacity-20"
+                style={{
+                  fontFamily: "var(--font-playfair), Georgia, serif",
+                  color: "var(--text)",
+                }}
+              >
+                —
+              </p>
+              <p
+                className="tracking-[0.2em] uppercase text-sm opacity-40"
+                style={{ color: "var(--text)" }}
+              >
+                No albums yet
               </p>
             </motion.div>
           )}

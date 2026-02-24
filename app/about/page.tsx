@@ -1,12 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 
-const stats = [
-  { number: "8+", label: "Years of Experience" },
-  { number: "50+", label: "Awards & Recognition" },
-  { number: "200+", label: "Satisfied Clients" },
-];
-
 export default function About() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -149,58 +143,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ── Stats row ─────────────────────────────────────────── */}
-      <section
-        className="py-20 px-6"
-        style={{ borderTop: "1px solid var(--border)" }}
-      >
-        <div className="mx-auto max-w-5xl">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={{
-              hidden: {},
-              show: { transition: { staggerChildren: 0.1 } },
-            }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-0"
-          >
-            {stats.map((stat, i) => (
-              <motion.div
-                key={i}
-                variants={{
-                  hidden: { opacity: 0, y: 24 },
-                  show: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.7, ease: "easeOut" },
-                  },
-                }}
-                className="text-center py-10 sm:py-0 sm:px-8"
-                style={{
-                  borderLeft: i > 0 ? "1px solid var(--border)" : "none",
-                }}
-              >
-                <p
-                  className="text-6xl font-bold leading-none mb-3"
-                  style={{
-                    fontFamily: "var(--font-playfair), Georgia, serif",
-                    color: "var(--accent)",
-                  }}
-                >
-                  {stat.number}
-                </p>
-                <p
-                  className="text-xs tracking-[0.2em] uppercase opacity-50"
-                  style={{ color: "var(--text)" }}
-                >
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }

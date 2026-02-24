@@ -191,9 +191,8 @@ export default function Contact() {
           style={{ borderTop: "1px solid var(--border)" }}
         >
           {[
-            { label: "Email",    value: "elijah@gallery.com"  },
-            { label: "Phone",    value: "+1 (555) 123-4567"   },
-            { label: "Location", value: "New York, NY"        },
+            { label: "Email",    value: "riveroelijah5@gmail.com" },
+            { label: "Location", value: "Lopez, Quezon"           },
           ].map(({ label, value }) => (
             <div key={label} className="flex gap-6 items-baseline">
               <span

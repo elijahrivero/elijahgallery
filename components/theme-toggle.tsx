@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Minimal sun / moon icons — no lucide dependency needed here
 function SunIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="2"  x2="12" y2="5"  />
       <line x1="12" y1="19" x2="12" y2="22" />
@@ -21,7 +21,7 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
@@ -46,7 +46,7 @@ export function ThemeToggle() {
     <button
       onClick={toggleTheme}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="relative w-8 h-8 flex items-center justify-center transition-opacity duration-200 opacity-50 hover:opacity-100"
+      className="relative w-10 h-10 flex items-center justify-center transition-opacity duration-200 opacity-60 hover:opacity-100"
       style={{ color: "var(--text)" }}
     >
       <AnimatePresence mode="wait" initial={false}>

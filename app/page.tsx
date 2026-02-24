@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import IntroCamera from "@/components/intro-camera";
-import GalleryCube from "@/components/gallery-cube";
 import { Camera, Instagram, Facebook, Linkedin, FolderOpen, Image as ImageIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -88,12 +87,6 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Floating Gallery Cube */}
-            {!isLoading && albums.length > 0 && (
-              <div className="mt-10 flex justify-center">
-                <GalleryCube albums={albums.map(a => ({ id: a.id, name: a.name, coverImage: a.coverImage }))} />
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -208,15 +201,6 @@ export default function Home() {
               <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
                 The gallery is empty. Albums will appear here once they're created and filled with photos.
               </p>
-              <Link
-                href="/admin"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Create First Album
-              </Link>
             </motion.div>
           )}
         </div>

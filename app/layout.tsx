@@ -86,7 +86,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 md:[&_*]:cursor-none">
+      <body suppressHydrationWarning className="antialiased min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 md:[&_*]:cursor-none">
         <ThemeProvider>
           <div className="min-h-screen flex flex-col">
             <CubeCursor />
@@ -104,9 +104,6 @@ export default function RootLayout({
                   </Link>
                   <Link href="/contact" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                     Contact
-                  </Link>
-                  <Link href="/admin" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                    Admin
                   </Link>
                   <SoundToggle />
                   <ThemeToggle />

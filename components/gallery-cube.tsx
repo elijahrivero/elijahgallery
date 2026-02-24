@@ -72,14 +72,12 @@ export default function GalleryCube({ albums, size = 220 }: GalleryCubeProps) {
                       alt={album.name}
                       className="w-full h-full object-cover opacity-95 hover:opacity-100 transition-opacity"
                     />
-                  ) : (
-                    <div className="w-full h-full grid place-items-center text-slate-300/70 text-sm">
-                      No Cover
+                  ) : null}
+                  {album?.name && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-white text-xs px-2 py-1">
+                      {album.name}
                     </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-white text-xs px-2 py-1">
-                    {album?.name ?? "Album"}
-                  </div>
                 </div>
               );
 
@@ -147,12 +145,12 @@ export default function GalleryCube({ albums, size = 220 }: GalleryCubeProps) {
                       {album?.coverImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={album.coverImage} alt={album.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full grid place-items-center text-slate-300/70 text-sm">No Cover</div>
+                      ) : null}
+                      {album?.name && (
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-white text-xs px-2 py-1">
+                          {album.name}
+                        </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-white text-xs px-2 py-1">
-                        {album?.name ?? "Album"}
-                      </div>
                     </div>
                   </div>
                 );

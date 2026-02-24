@@ -485,15 +485,6 @@ export default function AlbumPage({ params }: AlbumPageProps) {
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
               This album doesn't have any images yet. Upload some photos to get started!
             </p>
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Upload Images
-            </Link>
           </div>
         )}
       </main>

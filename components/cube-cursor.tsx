@@ -1,128 +1,125 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
-
-type Point = { x: number; y: number; t: number };
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/lib/theme-context";
 
 export default function CubeCursor() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const posRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
-  const [renderTick, setRenderTick] = useState(0);
-  const trailRef = useRef<Point[]>([]);
-  const lastMoveRef = useRef<number>(Date.now());
+  const { theme } = useTheme();
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const mouse = useRef({ x: -200, y: -200 });
+  const ringPos = useRef({ x: -200, y: -200 });
+  const [hovering, setHovering] = useState(false);
+  const [clicking, setClicking] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-  // Physics params for soft springy movement
-  const { stiffness, damping, mass } = useMemo(() => ({
-    stiffness: 0.04,
-    damping: 0.85,
-    mass: 1.0,
-  }), []);
-
+  // Track mouse position
   useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      setMouse({ x: e.clientX, y: e.clientY });
-      lastMoveRef.current = Date.now();
-      // Add particle point
-      trailRef.current.push({ x: e.clientX, y: e.clientY, t: Date.now() });
-      if (trailRef.current.length > 60) trailRef.current.shift();
+    const onMove = (e: MouseEvent) => {
+      mouse.current = { x: e.clientX, y: e.clientY };
+      setVisible(true);
     };
-
-    window.addEventListener("mousemove", handleMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMove as any);
+    const onLeave = () => setVisible(false);
+    const onEnter = () => setVisible(true);
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave);
+    document.addEventListener("mouseenter", onEnter);
+    return () => {
+      window.removeEventListener("mousemove", onMove as any);
+      document.removeEventListener("mouseleave", onLeave);
+      document.removeEventListener("mouseenter", onEnter);
+    };
   }, []);
 
-  // Animation loop
+  // Detect hovering over interactive elements
   useEffect(() => {
-    let raf = 0;
+    const onOver = (e: MouseEvent) => {
+      const el = e.target as HTMLElement;
+      setHovering(!!el.closest("a, button, [role='button'], input, select, textarea, label"));
+    };
+    window.addEventListener("mouseover", onOver, { passive: true });
+    return () => window.removeEventListener("mouseover", onOver as any);
+  }, []);
+
+  // Click feedback
+  useEffect(() => {
+    const onDown = () => setClicking(true);
+    const onUp = () => setClicking(false);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
+  // rAF loop — dot snaps, ring eases
+  useEffect(() => {
+    let raf: number;
+    const ease = 0.11;
     const step = () => {
-      const targetX = mouse.x;
-      const targetY = mouse.y;
-      const p = posRef.current;
-      // Spring towards target
-      const ax = (targetX - p.x) * stiffness;
-      const ay = (targetY - p.y) * stiffness;
-      p.vx = (p.vx + ax / mass) * damping;
-      p.vy = (p.vy + ay / mass) * damping;
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Clear old particles
-      const now = Date.now();
-      trailRef.current = trailRef.current.filter(pt => now - pt.t < 600);
-
-      setRenderTick(t => t + 1);
+      if (dotRef.current) {
+        dotRef.current.style.left = `${mouse.current.x}px`;
+        dotRef.current.style.top = `${mouse.current.y}px`;
+      }
+      ringPos.current.x += (mouse.current.x - ringPos.current.x) * ease;
+      ringPos.current.y += (mouse.current.y - ringPos.current.y) * ease;
+      if (ringRef.current) {
+        ringRef.current.style.left = `${ringPos.current.x}px`;
+        ringRef.current.style.top = `${ringPos.current.y}px`;
+      }
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [stiffness, damping, mass, mouse.x, mouse.y]);
-
-  // Bounce scale based on velocity
-  const { scale, tiltX, tiltY } = useMemo(() => {
-    const { vx, vy } = posRef.current;
-    const v = Math.min(1, Math.hypot(vx, vy) / 40);
-    const scale = 1 + v * 0.08; // subtle bounce
-    const tiltX = vy * 0.12; // degrees
-    const tiltY = -vx * 0.12; // degrees
-    return { scale, tiltX, tiltY };
-  }, [renderTick]);
-
-  // Pastel gradient choices
-  const grad = useMemo(() => {
-    return "bg-[conic-gradient(at_30%_30%,#fde68a_0deg,#c7d2fe_90deg,#a7f3d0_180deg,#fecaca_270deg,#fde68a_360deg)]";
   }, []);
 
-  // Shadow position (glossy plane)
-  const boxX = posRef.current.x;
-  const boxY = posRef.current.y;
+  const isDark = theme === "dark";
+  const dotColor = isDark ? "rgba(255,255,255,0.95)" : "rgba(15,23,42,0.9)";
+  const ringBorder = isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.45)";
+  const ringBg = hovering
+    ? isDark ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)"
+    : "transparent";
+
+  const dotSize = clicking ? 3 : hovering ? 6 : 5;
+  const ringSize = clicking ? 28 : hovering ? 48 : 34;
 
   return (
-    <div ref={containerRef} className="pointer-events-none fixed inset-0 z-[60] hidden md:block">
-      {/* Particle trail */}
-      <svg className="absolute inset-0 w-full h-full" aria-hidden>
-        {trailRef.current.map((pt, i) => {
-          const age = Math.min(1, (Date.now() - pt.t) / 600);
-          const opacity = 0.25 * (1 - age);
-          const r = 3 + (1 - age) * 4;
-          return (
-            <circle key={i} cx={pt.x} cy={pt.y} r={r} fill="#a5b4fc" opacity={opacity} />
-          );
-        })}
-      </svg>
-
-      {/* Shadow on plane */}
+    <div
+      className="pointer-events-none fixed inset-0 z-[9999] hidden md:block"
+      style={{ opacity: visible ? 1 : 0, transition: "opacity 0.4s ease" }}
+    >
+      {/* Dot — snaps instantly to mouse */}
       <div
-        className="absolute -translate-x-1/2 -translate-y-1/2"
+        ref={dotRef}
         style={{
-          left: boxX,
-          top: boxY + 18,
+          position: "absolute",
+          width: dotSize,
+          height: dotSize,
+          background: dotColor,
+          borderRadius: "50%",
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.15s ease, height 0.15s ease, background 0.3s ease",
+          pointerEvents: "none",
+          willChange: "left, top",
         }}
-      >
-        <div className="w-10 h-3 rounded-full blur-md opacity-40 bg-black/40"></div>
-      </div>
-
-      {/* Cube */}
+      />
+      {/* Ring — follows with smooth easing */}
       <div
-        className="absolute -translate-x-1/2 -translate-y-1/2"
-        style={{ left: boxX, top: boxY }}
-      >
-        <div
-          className={[
-            "w-6 h-6 rounded-[6px]",
-            grad,
-            "shadow-[0_6px_20px_rgba(0,0,0,0.25)] border border-white/60",
-            "backdrop-blur-[2px]",
-          ].join(" ")}
-          style={{
-            transform: `translateZ(0) scale(${scale}) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
-          }}
-        >
-          {/* subtle face highlight */}
-          <div className="w-full h-full rounded-[6px] bg-white/10" />
-        </div>
-      </div>
+        ref={ringRef}
+        style={{
+          position: "absolute",
+          width: ringSize,
+          height: ringSize,
+          border: `1.5px solid ${ringBorder}`,
+          background: ringBg,
+          borderRadius: "50%",
+          transform: "translate(-50%, -50%)",
+          transition:
+            "width 0.3s cubic-bezier(0.2,0.8,0.2,1), height 0.3s cubic-bezier(0.2,0.8,0.2,1), border-color 0.3s ease, background 0.3s ease",
+          pointerEvents: "none",
+          willChange: "left, top",
+        }}
+      />
     </div>
   );
 }
-
-

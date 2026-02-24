@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { SoundToggle } from "@/components/sound-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
 
@@ -52,7 +51,6 @@ export default function SiteHeader() {
               {label}
             </Link>
           ))}
-          <SoundToggle />
           <ThemeToggle />
         </nav>
       </div>

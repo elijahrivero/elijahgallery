@@ -1,30 +1,35 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
+const inputBase =
+  "w-full bg-transparent text-base pb-3 outline-none resize-none transition-colors duration-200";
+
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSubmitStatus("success");
+    await new Promise((r) => setTimeout(r, 900));
     setIsSubmitting(false);
+    setSubmitted(true);
     setFormData({ name: "", email: "", message: "" });
-    setTimeout(() => setSubmitStatus("idle"), 3000);
+    setTimeout(() => setSubmitted(false), 4000);
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  ) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  // Gold border on focus via CSS class swap instead of direct style mutation
+  const focusProps = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      e.currentTarget.classList.add("field-focused"),
+    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      e.currentTarget.classList.remove("field-focused"),
   };
 
   return (
@@ -54,127 +59,128 @@ export default function Contact() {
           </h1>
         </motion.div>
 
-        {/* Form */}
-        <motion.form
+        {/* Form — plain <form>, not motion.form */}
+        <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          onSubmit={handleSubmit}
-          className="space-y-12"
         >
-          {/* Field styles: only bottom border */}
-          {[
-            { id: "name", label: "Name", type: "text", placeholder: "Your name" },
-            { id: "email", label: "Email", type: "email", placeholder: "your@email.com" },
-          ].map((field) => (
-            <div key={field.id} className="relative">
+          <form onSubmit={handleSubmit} className="space-y-12">
+            {/* Name */}
+            <div>
               <label
-                htmlFor={field.id}
+                htmlFor="name"
                 className="block text-xs tracking-[0.2em] uppercase mb-3 opacity-50"
                 style={{ color: "var(--text)" }}
               >
-                {field.label}
+                Name
               </label>
               <input
-                type={field.type}
-                id={field.id}
-                name={field.id}
-                value={formData[field.id as keyof typeof formData]}
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
-                placeholder={field.placeholder}
-                className="w-full bg-transparent text-base pb-3 outline-none placeholder:opacity-30 transition-colors duration-200"
-                style={{
-                  color: "var(--text)",
-                  borderBottom: "1px solid var(--border)",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderBottomColor = "var(--accent)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderBottomColor = "var(--border)";
-                }}
+                placeholder="Your name"
+                className={inputBase}
+                style={{ color: "var(--text)" }}
+                {...focusProps}
               />
             </div>
-          ))}
 
-          <div className="relative">
-            <label
-              htmlFor="message"
-              className="block text-xs tracking-[0.2em] uppercase mb-3 opacity-50"
-              style={{ color: "var(--text)" }}
-            >
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              required
-              rows={5}
-              placeholder="Tell me about your project..."
-              className="w-full bg-transparent text-base pb-3 outline-none resize-none placeholder:opacity-30 transition-colors duration-200"
-              style={{
-                color: "var(--text)",
-                borderBottom: "1px solid var(--border)",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderBottomColor = "var(--accent)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderBottomColor = "var(--border)";
-              }}
-            />
-          </div>
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs tracking-[0.2em] uppercase mb-3 opacity-50"
+                style={{ color: "var(--text)" }}
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="your@email.com"
+                className={inputBase}
+                style={{ color: "var(--text)" }}
+                {...focusProps}
+              />
+            </div>
 
-          <motion.button
-            type="submit"
-            disabled={isSubmitting}
-            whileHover={{ x: 4 }}
-            transition={{ type: "spring", damping: 20 }}
-            className="inline-flex items-center gap-3 text-sm tracking-widest uppercase disabled:opacity-40"
-            style={{ color: "var(--accent)" }}
-          >
-            {isSubmitting ? (
-              <>
-                <span
-                  className="inline-block w-4 h-4 rounded-full border-t animate-spin"
-                  style={{ borderColor: "var(--accent)" }}
-                />
-                Sending…
-              </>
-            ) : (
-              <>
-                Send Message
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </>
-            )}
-          </motion.button>
+            {/* Message */}
+            <div>
+              <label
+                htmlFor="message"
+                className="block text-xs tracking-[0.2em] uppercase mb-3 opacity-50"
+                style={{ color: "var(--text)" }}
+              >
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                rows={5}
+                placeholder="Tell me about your project..."
+                className={inputBase}
+                style={{ color: "var(--text)" }}
+                {...focusProps}
+              />
+            </div>
 
-          {submitStatus === "success" && (
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-sm tracking-wide"
+            {/* Submit */}
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              whileHover={!isSubmitting ? { x: 4 } : {}}
+              transition={{ type: "spring", damping: 20 }}
+              className="inline-flex items-center gap-3 text-sm tracking-widest uppercase disabled:opacity-40"
               style={{ color: "var(--accent)" }}
             >
-              Thank you — message received.
-            </motion.p>
-          )}
-        </motion.form>
+              {isSubmitting ? (
+                <>
+                  <span
+                    className="inline-block w-4 h-4 rounded-full animate-spin"
+                    style={{
+                      border: "1px solid var(--accent)",
+                      borderTopColor: "transparent",
+                    }}
+                  />
+                  Sending…
+                </>
+              ) : (
+                <>
+                  Send Message
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </>
+              )}
+            </motion.button>
+
+            {/* Success message */}
+            <AnimatePresence>
+              {submitted && (
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm tracking-wide"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Thank you — message received.
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </form>
+        </motion.div>
 
         {/* Contact info */}
         <motion.div
@@ -185,9 +191,9 @@ export default function Contact() {
           style={{ borderTop: "1px solid var(--border)" }}
         >
           {[
-            { label: "Email", value: "elijah@gallery.com" },
-            { label: "Phone", value: "+1 (555) 123-4567" },
-            { label: "Location", value: "New York, NY" },
+            { label: "Email",    value: "elijah@gallery.com"  },
+            { label: "Phone",    value: "+1 (555) 123-4567"   },
+            { label: "Location", value: "New York, NY"        },
           ].map(({ label, value }) => (
             <div key={label} className="flex gap-6 items-baseline">
               <span
@@ -196,30 +202,40 @@ export default function Contact() {
               >
                 {label}
               </span>
-              <span
-                className="text-sm opacity-70"
-                style={{ color: "var(--text)" }}
-              >
+              <span className="text-sm opacity-70" style={{ color: "var(--text)" }}>
                 {value}
               </span>
             </div>
           ))}
 
-          {/* Social links */}
           <div className="pt-6 flex gap-8">
-            {["Instagram", "Facebook", "LinkedIn"].map((social) => (
+            {["Instagram", "Facebook", "LinkedIn"].map((s) => (
               <a
-                key={social}
+                key={s}
                 href="#"
                 className="text-xs tracking-widest uppercase gold-underline opacity-50 hover:opacity-100 transition-opacity"
                 style={{ color: "var(--text)" }}
               >
-                {social}
+                {s}
               </a>
             ))}
           </div>
         </motion.div>
       </div>
+
+      {/* Field focus styles injected globally */}
+      <style>{`
+        .field-focused {
+          border-bottom-color: var(--accent) !important;
+        }
+        input, textarea {
+          border-bottom: 1px solid var(--border);
+          color-scheme: light dark;
+        }
+        input::placeholder, textarea::placeholder {
+          opacity: 0.35;
+        }
+      `}</style>
     </div>
   );
 }

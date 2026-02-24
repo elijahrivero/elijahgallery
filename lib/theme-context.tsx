@@ -16,19 +16,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme on mount
+  // Initialize theme on mount — default is always dark
   useEffect(() => {
-    // Get saved theme or system preference
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      setThemeState(savedTheme);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initialTheme = prefersDark ? 'dark' : 'light';
-      setThemeState(initialTheme);
-      localStorage.setItem('theme', initialTheme);
-    }
+    const initialTheme = savedTheme === 'light' ? 'light' : 'dark';
+    setThemeState(initialTheme);
+    localStorage.setItem('theme', initialTheme);
     setMounted(true);
   }, []);
 
